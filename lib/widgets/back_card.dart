@@ -1,6 +1,8 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-
-import '../constants/styling.dart';
+import 'package:to_do_list/constant_functions/signup_function.dart';
+import 'package:to_do_list/constants/styling.dart';
+import 'package:to_do_list/main.dart';
 
 class BackCard extends StatefulWidget {
   const BackCard({super.key, required this.flipCard});
@@ -13,15 +15,36 @@ class BackCard extends StatefulWidget {
 
 class _BackCardState extends State<BackCard> {
   final _signupFormKey = GlobalKey<FormState>();
-  bool isVisiblePassword = false;
+  final String userId = firebaseAuth.currentUser!.uid;
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+
+  bool isVisiblePassword = true;
   String _enteredName = 'Anonymous';
   String _enteredEmail = '';
   String _enteredPassword = '';
 
-  void _signup() {
-    final isValid = _signupFormKey.currentState!.validate();
-    if (!isValid) return;
-    _signupFormKey.currentState!.save();
+  Future<void> _auth() async {
+    _enteredName = _nameController.text;
+    _enteredEmail = _emailController.text;
+    _enteredPassword = _passwordController.text;
+    signup(_enteredName, _enteredEmail, _enteredPassword, context);
+
+    try {
+      UserCredential userCredentials =
+          await firebaseAuth.createUserWithEmailAndPassword(
+        email: _enteredEmail,
+        password: _enteredPassword,
+      );
+
+      await fireStore.collection('users').doc(userId).set({
+        'name': _enteredName,
+        'email': _enteredEmail,
+      });
+    } on FirebaseAuthException catch (error) {
+      showError(context, error);
+    }
   }
 
   @override
@@ -62,16 +85,15 @@ class _BackCardState extends State<BackCard> {
                       'Full Name',
                       'Anonymous',
                     ),
+                    controller: _nameController,
                     keyboardType: TextInputType.emailAddress,
                     textCapitalization: TextCapitalization.words,
-                    style: kNormalText(context),
-                    validator: (value) {
-                      if (value == null ||
-                          value.trim().isEmpty ||
-                          value.length < 3) {
-                        return 'Please enter a correct name';
-                      }
-                      return null;
+                    style: kNormalText(context).copyWith(color: Colors.white),
+                    onTapOutside: (value) {
+                      _enteredName = _nameController.text;
+                    },
+                    onFieldSubmitted: (value) {
+                      _enteredName = _nameController.text;
                     },
                     onSaved: (value) {
                       _enteredName = value!;
@@ -84,16 +106,15 @@ class _BackCardState extends State<BackCard> {
                       'Email',
                       'mail@website.com',
                     ),
+                    controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
                     textCapitalization: TextCapitalization.none,
-                    style: kNormalText(context),
-                    validator: (value) {
-                      if (value == null ||
-                          value.trim().isEmpty ||
-                          !value.contains('@')) {
-                        return 'Please enter a valid email address';
-                      }
-                      return null;
+                    style: kNormalText(context).copyWith(color: Colors.white),
+                    onTapOutside: (value) {
+                      _enteredEmail = _emailController.text;
+                    },
+                    onFieldSubmitted: (value) {
+                      _enteredEmail = _emailController.text;
                     },
                     onSaved: (value) {
                       _enteredEmail = value!;
@@ -117,17 +138,16 @@ class _BackCardState extends State<BackCard> {
                             : Icons.visibility),
                       ),
                     ),
+                    controller: _passwordController,
                     keyboardType: TextInputType.visiblePassword,
                     textCapitalization: TextCapitalization.none,
-                    style: kNormalText(context),
+                    style: kNormalText(context).copyWith(color: Colors.white),
                     obscureText: isVisiblePassword,
-                    validator: (value) {
-                      if (value == null ||
-                          value.trim().isEmpty ||
-                          value.length < 8) {
-                        return 'Please enter a valid password';
-                      }
-                      return null;
+                    onTapOutside: (value) {
+                      _enteredPassword = _passwordController.text;
+                    },
+                    onFieldSubmitted: (value) {
+                      _enteredPassword = _passwordController.text;
                     },
                     onSaved: (value) {
                       _enteredPassword = value!;
@@ -135,7 +155,7 @@ class _BackCardState extends State<BackCard> {
                   ),
                   const SizedBox(height: 30),
                   ElevatedButton(
-                    onPressed: _signup,
+                    onPressed: _auth,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xff334e6a),
                       fixedSize: Size(screenWidth - 80, 45),

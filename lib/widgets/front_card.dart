@@ -14,7 +14,7 @@ class FrontCard extends StatefulWidget {
 class _FrontCardState extends State<FrontCard> {
   final _loginFormKey = GlobalKey<FormState>();
 
-  bool isVisiblePassword = false;
+  bool isVisiblePassword = true;
   String _enteredEmail = '';
   String _enteredPassword = '';
 
@@ -89,7 +89,7 @@ class _FrontCardState extends State<FrontCard> {
                     ),
                     keyboardType: TextInputType.emailAddress,
                     textCapitalization: TextCapitalization.none,
-                    style: kNormalText(context),
+                    style: kNormalText(context).copyWith(color: Colors.white),
                     validator: (value) {
                       if (value == null ||
                           value.trim().isEmpty ||
@@ -122,7 +122,7 @@ class _FrontCardState extends State<FrontCard> {
                     ),
                     keyboardType: TextInputType.visiblePassword,
                     textCapitalization: TextCapitalization.none,
-                    style: kNormalText(context),
+                    style: kNormalText(context).copyWith(color: Colors.white),
                     obscureText: isVisiblePassword,
                     validator: (value) {
                       if (value == null ||

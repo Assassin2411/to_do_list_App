@@ -1,8 +1,14 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:to_do_list/constants/styling.dart';
 import 'package:to_do_list/screens/login_screen.dart';
 import 'package:to_do_list/screens/todo_list_screen.dart';
+import 'package:to_do_list/widgets/navigator_page.dart';
+
+final firebaseAuth = FirebaseAuth.instance;
+final fireStore = FirebaseFirestore.instance;
 
 void main() async {
   // WidgetsFlutterBinding.ensureInitialized();
@@ -87,6 +93,7 @@ class MyApp extends StatelessWidget {
         routes: {
           ToDoListScreen.routeName: (context) => const ToDoListScreen(),
           LoginScreen.routeName: (context) => const LoginScreen(),
+          NavigatorPage.routeName: (context) => const NavigatorPage(),
         },
       ),
     );

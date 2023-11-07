@@ -5,6 +5,7 @@ import 'package:to_do_list/screens/todo_list_screen.dart';
 
 class NavigatorPage extends StatelessWidget {
   const NavigatorPage({super.key});
+  static String routeName = 'navigator_page';
 
   @override
   Widget build(BuildContext context) {
