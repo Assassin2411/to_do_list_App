@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-
-import '../constants/styling.dart';
+import 'package:to_do_list/constant_functions/login_function.dart';
+import 'package:to_do_list/constants/styling.dart';
 
 class FrontCard extends StatefulWidget {
   const FrontCard({super.key, required this.flipCard});
@@ -13,14 +13,34 @@ class FrontCard extends StatefulWidget {
 
 class _FrontCardState extends State<FrontCard> {
   final _loginFormKey = GlobalKey<FormState>();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
 
   bool isVisiblePassword = true;
+  bool isShowSpinner = false;
   String _enteredEmail = '';
   String _enteredPassword = '';
 
+  _auth() async {
+    setState(() {
+      isShowSpinner = true;
+    });
+    _enteredEmail = _emailController.text;
+    _enteredPassword = _passwordController.text;
+
+    login(_enteredEmail, _enteredPassword, context);
+
+    setState(() {
+      isShowSpinner = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    final double screenWidth = MediaQuery.of(context).size.width;
+    final double screenWidth = MediaQuery
+        .of(context)
+        .size
+        .width;
     return Card(
       elevation: 10,
       shape: RoundedRectangleBorder(
@@ -90,17 +110,16 @@ class _FrontCardState extends State<FrontCard> {
                     keyboardType: TextInputType.emailAddress,
                     textCapitalization: TextCapitalization.none,
                     style: kNormalText(context).copyWith(color: Colors.white),
-                    validator: (value) {
-                      if (value == null ||
-                          value.trim().isEmpty ||
-                          !value.contains('@')) {
-                        return 'Please enter a valid email address';
-                      }
-                      return null;
+                    onTapOutside: (value) {
+                      _enteredEmail = _emailController.text;
+                    },
+                    onFieldSubmitted: (value) {
+                      _enteredEmail = _emailController.text;
                     },
                     onSaved: (value) {
-                      _enteredEmail = value!;
+                      _enteredEmail = _emailController.text;
                     },
+                    readOnly: isShowSpinner,
                   ),
                   const SizedBox(height: 20),
                   TextFormField(
@@ -124,22 +143,20 @@ class _FrontCardState extends State<FrontCard> {
                     textCapitalization: TextCapitalization.none,
                     style: kNormalText(context).copyWith(color: Colors.white),
                     obscureText: isVisiblePassword,
-                    validator: (value) {
-                      if (value == null ||
-                          value.trim().isEmpty ||
-                          value.length < 8 ||
-                          !value.contains('@#%*')) {
-                        return 'Please enter a valid password';
-                      }
-                      return null;
+                    onTapOutside: (value) {
+                      _enteredPassword = _passwordController.text;
+                    },
+                    onFieldSubmitted: (value) {
+                      _enteredPassword = _passwordController.text;
                     },
                     onSaved: (value) {
                       _enteredPassword = value!;
                     },
+                    readOnly: isShowSpinner,
                   ),
                   const SizedBox(height: 40),
                   ElevatedButton(
-                    onPressed: () {},
+                    onPressed: _auth,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xff334e6a),
                       fixedSize: Size(screenWidth - 80, 45),
@@ -147,7 +164,11 @@ class _FrontCardState extends State<FrontCard> {
                         borderRadius: BorderRadius.circular(30),
                       ),
                     ),
-                    child: Text(
+                    child: isShowSpinner
+                        ? const CircularProgressIndicator(
+                      color: Colors.white,
+                    )
+                        : Text(
                       'Login',
                       style: kNormalText(context),
                     ),

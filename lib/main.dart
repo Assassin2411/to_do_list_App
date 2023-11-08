@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:to_do_list/constants/styling.dart';
@@ -9,10 +11,11 @@ import 'package:to_do_list/widgets/navigator_page.dart';
 
 final firebaseAuth = FirebaseAuth.instance;
 final fireStore = FirebaseFirestore.instance;
+final firebaseMessaging = FirebaseMessaging.instance;
 
 void main() async {
-  // WidgetsFlutterBinding.ensureInitialized();
-  // await Firebase.initializeApp();
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
     statusBarColor: Colors.transparent,
     statusBarIconBrightness: Brightness.dark,
@@ -89,7 +92,7 @@ class MyApp extends StatelessWidget {
         darkTheme: darkThemeData,
         themeMode: ThemeChangeNotifier.of(context)?._themeMode,
         debugShowCheckedModeBanner: false,
-        initialRoute: LoginScreen.routeName,
+        initialRoute: NavigatorPage.routeName,
         routes: {
           ToDoListScreen.routeName: (context) => const ToDoListScreen(),
           LoginScreen.routeName: (context) => const LoginScreen(),

@@ -5,6 +5,7 @@ import 'package:to_do_list/screens/todo_list_screen.dart';
 
 class NavigatorPage extends StatelessWidget {
   const NavigatorPage({super.key});
+
   static String routeName = 'navigator_page';
 
   @override
@@ -25,7 +26,10 @@ class NavigatorPage extends StatelessWidget {
         if (snapshot.hasData) {
           return const ToDoListScreen();
         }
-        return const LoginScreen();
+        if (!snapshot.hasData) {
+          return const LoginScreen();
+        }
+        return const CircularProgressIndicator();
       },
     );
     ;

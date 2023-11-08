@@ -1,6 +1,11 @@
-import 'package:firebase_auth/firebase_auth.dart';
+import 'dart:developer';
+
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:to_do_list/constant_functions/get_location.dart';
 import 'package:to_do_list/constant_functions/signup_function.dart';
+import 'package:to_do_list/constant_functions/take_image.dart';
 import 'package:to_do_list/constants/styling.dart';
 import 'package:to_do_list/main.dart';
 
@@ -15,36 +20,54 @@ class BackCard extends StatefulWidget {
 
 class _BackCardState extends State<BackCard> {
   final _signupFormKey = GlobalKey<FormState>();
-  final String userId = firebaseAuth.currentUser!.uid;
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
   bool isVisiblePassword = true;
+  bool isShowSpinner = false;
+  String userId = '';
   String _enteredName = 'Anonymous';
   String _enteredEmail = '';
   String _enteredPassword = '';
+  String _profileUrl = '';
+  String _fcmToken = '';
+  double _latitude = 26.8255886;
+  double _longitude = 75.7923313;
+
+  Future<void> _getDeviceToken() async {
+    final fCMToken = await firebaseMessaging.getToken();
+    _fcmToken = fCMToken!;
+  }
+
+  void _getLocation() async {
+    try {
+      Position position = await determinePosition();
+      log('Latitude: ${position.latitude}, Longitude: ${position.longitude}');
+      _latitude = position.latitude;
+      _longitude = position.longitude;
+    } catch (e) {
+      // Handle exception
+      print(e);
+    }
+  }
 
   Future<void> _auth() async {
+    setState(() {
+      isShowSpinner = true;
+    });
     _enteredName = _nameController.text;
     _enteredEmail = _emailController.text;
     _enteredPassword = _passwordController.text;
-    signup(_enteredName, _enteredEmail, _enteredPassword, context);
 
-    try {
-      UserCredential userCredentials =
-          await firebaseAuth.createUserWithEmailAndPassword(
-        email: _enteredEmail,
-        password: _enteredPassword,
-      );
+    _getDeviceToken();
+    _getLocation();
 
-      await fireStore.collection('users').doc(userId).set({
-        'name': _enteredName,
-        'email': _enteredEmail,
-      });
-    } on FirebaseAuthException catch (error) {
-      showError(context, error);
-    }
+    signup(_enteredName, _enteredEmail, _enteredPassword, _profileUrl,
+        _fcmToken, _latitude, _longitude, context);
+    setState(() {
+      isShowSpinner = false;
+    });
   }
 
   @override
@@ -64,14 +87,66 @@ class _BackCardState extends State<BackCard> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'SignUp',
-              style: kHeadingStyle(context),
-            ),
-            Text(
-              'Enjoy Your Day...',
-              style: kNormalText(context)
-                  .copyWith(color: Colors.white, fontSize: 12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'SignUp',
+                      style: kHeadingStyle(context),
+                    ),
+                    Text(
+                      'Enjoy Your Day...',
+                      style: kNormalText(context)
+                          .copyWith(color: Colors.white, fontSize: 12),
+                    ),
+                  ],
+                ),
+                Stack(
+                  children: [
+                    CircleAvatar(
+                      radius: 50,
+                      backgroundColor: const Color(0xff334e6a),
+                      backgroundImage: const AssetImage(
+                          'assets/images/pngs/Profile-Male-Transparent.png'),
+                      foregroundImage: CachedNetworkImageProvider(
+                        _profileUrl,
+                        maxHeight: 100,
+                        maxWidth: 100,
+                      ),
+                    ),
+                    Positioned(
+                      right: 0,
+                      bottom: 0,
+                      height: 30,
+                      width: 30,
+                      child: Container(
+                        height: 30,
+                        width: 30,
+                        decoration: BoxDecoration(
+                            color: const Color(0xffefefef),
+                            borderRadius: BorderRadius.circular(30)),
+                        child: Center(
+                          child: IconButton(
+                            onPressed: () {
+                              setState(() {
+                                _profileUrl = takeImage(userId).toString();
+                              });
+                            },
+                            icon: const Icon(
+                              Icons.camera_alt,
+                              size: 15,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
             const SizedBox(height: 20),
             const SizedBox(height: 40),
@@ -98,6 +173,7 @@ class _BackCardState extends State<BackCard> {
                     onSaved: (value) {
                       _enteredName = value!;
                     },
+                    readOnly: isShowSpinner,
                   ),
                   const SizedBox(height: 20),
                   TextFormField(
@@ -119,6 +195,7 @@ class _BackCardState extends State<BackCard> {
                     onSaved: (value) {
                       _enteredEmail = value!;
                     },
+                    readOnly: isShowSpinner,
                   ),
                   const SizedBox(height: 20),
                   TextFormField(
@@ -152,6 +229,7 @@ class _BackCardState extends State<BackCard> {
                     onSaved: (value) {
                       _enteredPassword = value!;
                     },
+                    readOnly: isShowSpinner,
                   ),
                   const SizedBox(height: 30),
                   ElevatedButton(
@@ -163,12 +241,16 @@ class _BackCardState extends State<BackCard> {
                         borderRadius: BorderRadius.circular(30),
                       ),
                     ),
-                    child: Text(
-                      'Signup',
-                      style: kNormalText(context),
-                    ),
+                    child: isShowSpinner
+                        ? const CircularProgressIndicator(
+                            color: Colors.white,
+                          )
+                        : Text(
+                            'Signup',
+                            style: kNormalText(context),
+                          ),
                   ),
-                  const SizedBox(height: 15),
+                  const SizedBox(height: 40),
                   TextButton(
                     onPressed: widget.flipCard,
                     child: Text(

@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:to_do_list/constants/styling.dart';
 
@@ -32,7 +33,9 @@ class ToDoListScreen extends StatelessWidget {
                     style: ButtonStyle(
                       padding: MaterialStateProperty.all(EdgeInsets.zero),
                     ),
-                    onPressed: () {},
+                    onPressed: () {
+                      FirebaseAuth.instance.signOut();
+                    },
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [

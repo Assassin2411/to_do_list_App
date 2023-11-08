@@ -35,7 +35,7 @@ class CustomSnackbar extends StatelessWidget {
                     const Spacer(),
                     Text(
                       content,
-                      overflow: TextOverflow.ellipsis,
+                      maxLines: 2,
                     ),
                   ],
                 ),
