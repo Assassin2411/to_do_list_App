@@ -30,6 +30,12 @@ TextStyle kButtonTextStyle(context) => TextStyle(
       fontWeight: FontWeight.w500,
     );
 
+TextStyle kSnackbarContentTextStyle(context) => const TextStyle(
+      color: Colors.white,
+      fontSize: 12,
+      fontWeight: FontWeight.w300,
+    );
+
 OutlineInputBorder outlineInputBorder(color) => OutlineInputBorder(
       borderRadius: BorderRadius.circular(30.0),
       borderSide: BorderSide(color: color),
@@ -49,6 +55,7 @@ ThemeData darkThemeData = ThemeData(
       surface: Color(0xff000000),
       onSurface: Color(0xffe3dee4),
     ),
+    backgroundColor: const Color(0xff334e6a),
     fontFamily: 'RobotoCondensed');
 
 ThemeData lightThemeData = ThemeData(
@@ -65,6 +72,7 @@ ThemeData lightThemeData = ThemeData(
       surface: Color(0xffeae5f8),
       onSurface: Color(0xff000000),
     ),
+    backgroundColor: const Color(0xffeae5f8),
     fontFamily: 'RobotoCondensed');
 
 InputDecoration kTextFieldInputDecoration(context, labelText, hintText) =>
@@ -72,7 +80,8 @@ InputDecoration kTextFieldInputDecoration(context, labelText, hintText) =>
       constraints: const BoxConstraints(maxHeight: 45, minHeight: 45),
       contentPadding: const EdgeInsets.symmetric(horizontal: 20),
       labelText: labelText,
-      labelStyle: kNormalText(context).copyWith(color: Colors.white),
+      labelStyle: kNormalText(context)
+          .copyWith(color: Theme.of(context).colorScheme.onSurface),
       hintText: hintText,
       hintStyle: kNormalText(context).copyWith(color: kHeadingColor(context)),
       border: outlineInputBorder(Colors.white),

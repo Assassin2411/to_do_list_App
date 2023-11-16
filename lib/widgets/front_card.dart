@@ -16,10 +16,10 @@ class _FrontCardState extends State<FrontCard> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-  bool isVisiblePassword = true;
+  bool isNotVisiblePassword = true;
   bool isShowSpinner = false;
-  String _enteredEmail = '';
-  String _enteredPassword = '';
+  String? _enteredEmail;
+  String? _enteredPassword;
 
   _auth() async {
     setState(() {
@@ -37,10 +37,7 @@ class _FrontCardState extends State<FrontCard> {
 
   @override
   Widget build(BuildContext context) {
-    final double screenWidth = MediaQuery
-        .of(context)
-        .size
-        .width;
+    final double screenWidth = MediaQuery.of(context).size.width;
     return Card(
       elevation: 10,
       shape: RoundedRectangleBorder(
@@ -107,18 +104,19 @@ class _FrontCardState extends State<FrontCard> {
                       'Email',
                       'mail@website.com',
                     ),
+                    controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
                     textCapitalization: TextCapitalization.none,
                     style: kNormalText(context).copyWith(color: Colors.white),
-                    onTapOutside: (value) {
-                      _enteredEmail = _emailController.text;
-                    },
-                    onFieldSubmitted: (value) {
-                      _enteredEmail = _emailController.text;
-                    },
-                    onSaved: (value) {
-                      _enteredEmail = _emailController.text;
-                    },
+                    // onTapOutside: (value) {
+                    //   _enteredEmail = _emailController.text;
+                    // },
+                    // onFieldSubmitted: (value) {
+                    //   _enteredEmail = _emailController.text;
+                    // },
+                    // onSaved: (value) {
+                    //   _enteredEmail = _emailController.text;
+                    // },
                     readOnly: isShowSpinner,
                   ),
                   const SizedBox(height: 20),
@@ -131,27 +129,28 @@ class _FrontCardState extends State<FrontCard> {
                       suffixIcon: IconButton(
                         onPressed: () {
                           setState(() {
-                            isVisiblePassword = !isVisiblePassword;
+                            isNotVisiblePassword = !isNotVisiblePassword;
                           });
                         },
-                        icon: Icon(isVisiblePassword
+                        icon: Icon(isNotVisiblePassword
                             ? Icons.visibility_off
                             : Icons.visibility),
                       ),
                     ),
+                    controller: _passwordController,
                     keyboardType: TextInputType.visiblePassword,
                     textCapitalization: TextCapitalization.none,
                     style: kNormalText(context).copyWith(color: Colors.white),
-                    obscureText: isVisiblePassword,
-                    onTapOutside: (value) {
-                      _enteredPassword = _passwordController.text;
-                    },
-                    onFieldSubmitted: (value) {
-                      _enteredPassword = _passwordController.text;
-                    },
-                    onSaved: (value) {
-                      _enteredPassword = value!;
-                    },
+                    obscureText: isNotVisiblePassword,
+                    // onTapOutside: (value) {
+                    //   _enteredPassword = _passwordController.text;
+                    // },
+                    // onFieldSubmitted: (value) {
+                    //   _enteredPassword = _passwordController.text;
+                    // },
+                    // onSaved: (value) {
+                    //   _enteredPassword = _passwordController.text;
+                    // },
                     readOnly: isShowSpinner,
                   ),
                   const SizedBox(height: 40),
@@ -166,12 +165,12 @@ class _FrontCardState extends State<FrontCard> {
                     ),
                     child: isShowSpinner
                         ? const CircularProgressIndicator(
-                      color: Colors.white,
-                    )
+                            color: Colors.white,
+                          )
                         : Text(
-                      'Login',
-                      style: kNormalText(context),
-                    ),
+                            'Login',
+                            style: kNormalText(context),
+                          ),
                   ),
                   const SizedBox(height: 60),
                   TextButton(

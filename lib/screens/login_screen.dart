@@ -38,15 +38,25 @@ class _LoginScreenState extends State<LoginScreen> {
           FlipCard(
             key: _flipCardKey,
             flipOnTouch: false,
-            front: FrontCard(
-              flipCard: () {
+            front: GestureDetector(
+              onHorizontalDragEnd: (value) {
                 _flipCardKey.currentState?.toggleCard();
               },
+              child: FrontCard(
+                flipCard: () {
+                  _flipCardKey.currentState?.toggleCard();
+                },
+              ),
             ),
-            back: BackCard(
-              flipCard: () {
+            back: GestureDetector(
+              onHorizontalDragEnd: (value) {
                 _flipCardKey.currentState?.toggleCard();
               },
+              child: BackCard(
+                flipCard: () {
+                  _flipCardKey.currentState?.toggleCard();
+                },
+              ),
             ),
           ),
         ],

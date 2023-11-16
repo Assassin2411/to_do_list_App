@@ -1,11 +1,14 @@
 import 'dart:developer';
+import 'dart:io';
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:image_cropper/image_cropper.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:to_do_list/constant_functions/get_location.dart';
 import 'package:to_do_list/constant_functions/signup_function.dart';
-import 'package:to_do_list/constant_functions/take_image.dart';
 import 'package:to_do_list/constants/styling.dart';
 import 'package:to_do_list/main.dart';
 
@@ -26,11 +29,10 @@ class _BackCardState extends State<BackCard> {
 
   bool isVisiblePassword = true;
   bool isShowSpinner = false;
-  String userId = '';
   String _enteredName = 'Anonymous';
   String _enteredEmail = '';
   String _enteredPassword = '';
-  String _profileUrl = '';
+  File? _newImage;
   String _fcmToken = '';
   double _latitude = 26.8255886;
   double _longitude = 75.7923313;
@@ -47,8 +49,7 @@ class _BackCardState extends State<BackCard> {
       _latitude = position.latitude;
       _longitude = position.longitude;
     } catch (e) {
-      // Handle exception
-      print(e);
+      log(e.toString());
     }
   }
 
@@ -63,10 +64,51 @@ class _BackCardState extends State<BackCard> {
     _getDeviceToken();
     _getLocation();
 
-    signup(_enteredName, _enteredEmail, _enteredPassword, _profileUrl,
-        _fcmToken, _latitude, _longitude, context);
+    signup(_enteredName, _enteredEmail, _enteredPassword, _newImage, _fcmToken,
+        _latitude, _longitude, context);
     setState(() {
       isShowSpinner = false;
+    });
+  }
+
+  _takeImage() async {
+    final image = await ImagePicker().pickImage(source: ImageSource.gallery);
+    if (image == null) {
+      return;
+    }
+
+    final dir = await getTemporaryDirectory();
+    final targetPath = '${dir.absolute.path}/temp.jpg';
+
+    final result = await FlutterImageCompress.compressAndGetFile(
+      image.path,
+      targetPath,
+      minHeight: 1080,
+      minWidth: 1080,
+      quality: 35,
+    );
+
+    CroppedFile? croppedFile = await ImageCropper().cropImage(
+      sourcePath: result!.path,
+      aspectRatioPresets: [
+        CropAspectRatioPreset.square,
+      ],
+      uiSettings: [
+        AndroidUiSettings(
+            toolbarTitle: 'Crop your image',
+            toolbarColor: Colors.black,
+            toolbarWidgetColor: Colors.white,
+            initAspectRatio: CropAspectRatioPreset.original,
+            lockAspectRatio: false),
+        IOSUiSettings(
+          title: 'Crop your image',
+        ),
+      ],
+    );
+
+    File croppedImage = File(croppedFile!.path);
+    setState(() {
+      _newImage = croppedImage;
     });
   }
 
@@ -112,11 +154,8 @@ class _BackCardState extends State<BackCard> {
                       backgroundColor: const Color(0xff334e6a),
                       backgroundImage: const AssetImage(
                           'assets/images/pngs/Profile-Male-Transparent.png'),
-                      foregroundImage: CachedNetworkImageProvider(
-                        _profileUrl,
-                        maxHeight: 100,
-                        maxWidth: 100,
-                      ),
+                      foregroundImage:
+                          _newImage != null ? FileImage(_newImage!) : null,
                     ),
                     Positioned(
                       right: 0,
@@ -131,11 +170,7 @@ class _BackCardState extends State<BackCard> {
                             borderRadius: BorderRadius.circular(30)),
                         child: Center(
                           child: IconButton(
-                            onPressed: () {
-                              setState(() {
-                                _profileUrl = takeImage(userId).toString();
-                              });
-                            },
+                            onPressed: _takeImage,
                             icon: const Icon(
                               Icons.camera_alt,
                               size: 15,
@@ -164,15 +199,6 @@ class _BackCardState extends State<BackCard> {
                     keyboardType: TextInputType.emailAddress,
                     textCapitalization: TextCapitalization.words,
                     style: kNormalText(context).copyWith(color: Colors.white),
-                    onTapOutside: (value) {
-                      _enteredName = _nameController.text;
-                    },
-                    onFieldSubmitted: (value) {
-                      _enteredName = _nameController.text;
-                    },
-                    onSaved: (value) {
-                      _enteredName = value!;
-                    },
                     readOnly: isShowSpinner,
                   ),
                   const SizedBox(height: 20),
@@ -186,15 +212,6 @@ class _BackCardState extends State<BackCard> {
                     keyboardType: TextInputType.emailAddress,
                     textCapitalization: TextCapitalization.none,
                     style: kNormalText(context).copyWith(color: Colors.white),
-                    onTapOutside: (value) {
-                      _enteredEmail = _emailController.text;
-                    },
-                    onFieldSubmitted: (value) {
-                      _enteredEmail = _emailController.text;
-                    },
-                    onSaved: (value) {
-                      _enteredEmail = value!;
-                    },
                     readOnly: isShowSpinner,
                   ),
                   const SizedBox(height: 20),
@@ -220,15 +237,6 @@ class _BackCardState extends State<BackCard> {
                     textCapitalization: TextCapitalization.none,
                     style: kNormalText(context).copyWith(color: Colors.white),
                     obscureText: isVisiblePassword,
-                    onTapOutside: (value) {
-                      _enteredPassword = _passwordController.text;
-                    },
-                    onFieldSubmitted: (value) {
-                      _enteredPassword = _passwordController.text;
-                    },
-                    onSaved: (value) {
-                      _enteredPassword = value!;
-                    },
                     readOnly: isShowSpinner,
                   ),
                   const SizedBox(height: 30),

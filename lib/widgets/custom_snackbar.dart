@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:to_do_list/constants/styling.dart';
 
 class CustomSnackbar extends StatelessWidget {
   const CustomSnackbar(
@@ -35,6 +36,7 @@ class CustomSnackbar extends StatelessWidget {
                     const Spacer(),
                     Text(
                       content,
+                      style: kSnackbarContentTextStyle(context),
                       maxLines: 2,
                     ),
                   ],

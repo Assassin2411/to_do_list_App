@@ -9,8 +9,9 @@ final RegExp emailRegExp =
 final RegExp passwordRegExp =
     RegExp(r'^(?=.*[!@#$%^&*(),.?":{}|<>])[A-Za-z\d!@#$%^&*(),.?":{}|<>]{8,}$');
 
-signup(enteredName, enteredEmail, enteredPassword, profileUrl, fcmToken,
-    latitude, longitude, context) async {
+signup(enteredName, enteredEmail, enteredPassword, newImage, fcmToken, latitude,
+    longitude, context) async {
+  String profileUrl = '';
   if (enteredName.isEmpty || enteredEmail.isEmpty || enteredPassword.isEmpty) {
     ScaffoldMessenger.of(context).clearSnackBars();
     ScaffoldMessenger.of(context).showSnackBar(
@@ -76,17 +77,28 @@ signup(enteredName, enteredEmail, enteredPassword, profileUrl, fcmToken,
       password: enteredPassword,
     );
     final userId = userCredentials.user!.uid;
+
+    if (newImage != null) {
+      String filePath =
+          'users/$userId/${DateTime.now().millisecondsSinceEpoch}';
+      await fireStorage.ref(filePath).putFile(newImage);
+      profileUrl = await fireStorage.ref(filePath).getDownloadURL();
+    }
+
     ProfileModel profile = ProfileModel(
+      profileUrl: profileUrl,
       id: userId,
       name: enteredName,
       email: enteredEmail,
-      profileUrl: profileUrl,
       fcmToken: fcmToken,
+      dobUpdate: false,
       latitude: latitude,
       longitude: longitude,
       dateOfBirth: DateTime.now(),
       accountCreatedDate: DateTime.now(),
-      lastOnline: DateTime.now(), // Get this from user input
+      lastOnline: DateTime.now(),
+      phoneUpdate: false,
+      phoneNumber: 1234567890, // Get this from user input
       // Set other fields as necessary
     );
     await fireStore.collection('users').doc(userId).set(profile.toMap());
@@ -96,6 +108,12 @@ signup(enteredName, enteredEmail, enteredPassword, profileUrl, fcmToken,
 }
 
 showError(context, error) {
+  if (error.toString().contains('INVALID_LOGIN_CREDENTIALS')) {
+    error = 'Incorrect email or password.';
+  } else if (error.toString().contains('invalid-email')) {
+    error = 'User does not exist';
+  }
+
   ScaffoldMessenger.of(context).clearSnackBars();
   ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(

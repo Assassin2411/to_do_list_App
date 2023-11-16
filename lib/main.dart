@@ -2,16 +2,19 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:to_do_list/constants/styling.dart';
 import 'package:to_do_list/screens/login_screen.dart';
+import 'package:to_do_list/screens/profile_screen.dart';
 import 'package:to_do_list/screens/todo_list_screen.dart';
 import 'package:to_do_list/widgets/navigator_page.dart';
 
 final firebaseAuth = FirebaseAuth.instance;
 final fireStore = FirebaseFirestore.instance;
 final firebaseMessaging = FirebaseMessaging.instance;
+final fireStorage = FirebaseStorage.instance;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -97,6 +100,7 @@ class MyApp extends StatelessWidget {
           ToDoListScreen.routeName: (context) => const ToDoListScreen(),
           LoginScreen.routeName: (context) => const LoginScreen(),
           NavigatorPage.routeName: (context) => const NavigatorPage(),
+          ProfileScreen.routeName: (context) => const ProfileScreen(),
         },
       ),
     );
