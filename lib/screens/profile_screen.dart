@@ -258,24 +258,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 controller: _dobController,
                 readOnly: profile.dobUpdate,
               ),
-              const SizedBox(height: 30),
-              TextFormField(
-                decoration:
-                    kTextFieldInputDecoration(context, 'Number', '').copyWith(
-                  suffixIcon: Icon(
-                    Icons.check,
-                    color: !profile.phoneUpdate
-                        ? Theme.of(context).colorScheme.surface
-                        : Colors.green,
-                  ),
-                ),
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.onSurface,
-                ),
-                controller: _phoneNumberController,
-                maxLength: 10,
-                readOnly: profile.phoneUpdate,
-              ),
+              // const SizedBox(height: 30),
+              // TextFormField(
+              //   decoration:
+              //       kTextFieldInputDecoration(context, 'Number', '').copyWith(
+              //     suffixIcon: Icon(
+              //       Icons.check,
+              //       color: !profile.phoneUpdate
+              //           ? Theme.of(context).colorScheme.surface
+              //           : Colors.green,
+              //     ),
+              //   ),
+              //   style: TextStyle(
+              //     color: Theme.of(context).colorScheme.onSurface,
+              //   ),
+              //   controller: _phoneNumberController,
+              //   maxLength: 10,
+              //   readOnly: profile.phoneUpdate,
+              // ),
               const SizedBox(height: 30),
               TextFormField(
                 decoration:
