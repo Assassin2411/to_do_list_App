@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ProfileModel {
   ProfileModel({
-    required this.id,
     required this.email,
     required this.fcmToken,
     required this.latitude,
@@ -17,7 +16,6 @@ class ProfileModel {
     required this.profileUrl,
   });
 
-  final String id;
   final String name;
   final String email;
   String profileUrl;
@@ -33,7 +31,6 @@ class ProfileModel {
 
   Map<String, dynamic> toMap() {
     return {
-      'id': id,
       'name': name,
       'email': email,
       'profileUrl': profileUrl,
@@ -52,7 +49,6 @@ class ProfileModel {
   factory ProfileModel.fromMap(Map<String, dynamic> map) {
     return ProfileModel(
       profileUrl: map['profileUrl'] ?? '',
-      id: map['id'],
       name: map['name'],
       email: map['email'],
       fcmToken: map['fcmToken'],
@@ -69,7 +65,6 @@ class ProfileModel {
 }
 
 ProfileModel profile = ProfileModel(
-    id: '1',
     email: 'mail@website.com',
     fcmToken: '',
     latitude: 26,

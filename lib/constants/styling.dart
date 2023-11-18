@@ -52,9 +52,11 @@ ThemeData darkThemeData = ThemeData(
       onError: Color(0xffcfacb8),
       background: Color(0xfff24774),
       onBackground: Color(0xff655eb0),
-      surface: Color(0xff000000),
+      surface: Color(0xff0f0f0f),
       onSurface: Color(0xffe3dee4),
     ),
+    primaryColor: const Color(0xff0f0f0f),
+    canvasColor: const Color(0xfff3f5f7),
     backgroundColor: const Color(0xff334e6a),
     fontFamily: 'RobotoCondensed');
 
@@ -72,6 +74,8 @@ ThemeData lightThemeData = ThemeData(
       surface: Color(0xffeae5f8),
       onSurface: Color(0xff000000),
     ),
+    primaryColor: const Color(0xfff3f5f7),
+    canvasColor: const Color(0xff0f0f0f),
     backgroundColor: const Color(0xffeae5f8),
     fontFamily: 'RobotoCondensed');
 

@@ -110,6 +110,8 @@ class _BackCardState extends State<BackCard> {
     setState(() {
       _newImage = croppedImage;
     });
+    log(_newImage.toString());
+    print(_newImage.toString());
   }
 
   @override

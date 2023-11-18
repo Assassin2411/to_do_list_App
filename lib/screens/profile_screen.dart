@@ -9,8 +9,7 @@ import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:to_do_list/constants/styling.dart';
 import 'package:to_do_list/main.dart';
-
-import '../model/profile_model.dart';
+import 'package:to_do_list/model/profile_model.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -164,6 +163,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       resizeToAvoidBottomInset: false,
       backgroundColor: kScaffoldColor(context),
       appBar: AppBar(
+        elevation: 0,
         backgroundColor: kScaffoldColor(context),
         leading: IconButton(
           onPressed: () {
@@ -193,7 +193,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 children: [
                   CircleAvatar(
                     radius: 50,
-                    backgroundColor: const Color(0xff334e6a),
+                    backgroundColor: Colors.transparent,
                     backgroundImage: const AssetImage(
                         'assets/images/pngs/Profile-Male-Transparent.png'),
                     foregroundImage: profile.profileUrl != ''

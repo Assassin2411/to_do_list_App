@@ -1,13 +1,16 @@
+import 'dart:developer';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:to_do_list/main.dart';
 import 'package:to_do_list/model/profile_model.dart';
+import 'package:to_do_list/model/todo_model.dart';
 import 'package:to_do_list/widgets/custom_snackbar.dart';
 
 final RegExp emailRegExp =
-    RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
+RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
 final RegExp passwordRegExp =
-    RegExp(r'^(?=.*[!@#$%^&*(),.?":{}|<>])[A-Za-z\d!@#$%^&*(),.?":{}|<>]{8,}$');
+RegExp(r'^(?=.*[!@#$%^&*(),.?":{}|<>])[A-Za-z\d!@#$%^&*(),.?":{}|<>]{8,}$');
 
 signup(enteredName, enteredEmail, enteredPassword, newImage, fcmToken, latitude,
     longitude, context) async {
@@ -63,16 +66,22 @@ signup(enteredName, enteredEmail, enteredPassword, newImage, fcmToken, latitude,
         content: CustomSnackbar(
           heading: 'Try again!',
           content:
-              "Entered password have at least 8 characters and at least 1 special character! 😒",
+          "Entered password have at least 8 characters and at least 1 special character! 😒",
         ),
       ),
     );
     return;
   }
 
+  log('signUp newImage: $newImage');
+  print('signUp newImage: $newImage');
+
   try {
+    log(profile.toString());
+    print(profile.toString());
+
     UserCredential userCredentials =
-        await firebaseAuth.createUserWithEmailAndPassword(
+    await firebaseAuth.createUserWithEmailAndPassword(
       email: enteredEmail,
       password: enteredPassword,
     );
@@ -80,14 +89,15 @@ signup(enteredName, enteredEmail, enteredPassword, newImage, fcmToken, latitude,
 
     if (newImage != null) {
       String filePath =
-          'users/$userId/${DateTime.now().millisecondsSinceEpoch}';
+          'users/$userId/${DateTime
+          .now()
+          .millisecondsSinceEpoch}';
       await fireStorage.ref(filePath).putFile(newImage);
       profileUrl = await fireStorage.ref(filePath).getDownloadURL();
     }
 
-    ProfileModel profile = ProfileModel(
+    profile = ProfileModel(
       profileUrl: profileUrl,
-      id: userId,
       name: enteredName,
       email: enteredEmail,
       fcmToken: fcmToken,
@@ -98,10 +108,20 @@ signup(enteredName, enteredEmail, enteredPassword, newImage, fcmToken, latitude,
       accountCreatedDate: DateTime.now(),
       lastOnline: DateTime.now(),
       phoneUpdate: false,
-      phoneNumber: 1234567890, // Get this from user input
-      // Set other fields as necessary
+      phoneNumber: 1234567890,
     );
-    await fireStore.collection('users').doc(userId).set(profile.toMap());
+
+    await fireStore
+        .collection('users')
+        .doc(userId)
+        .set(profile.toMap());
+
+    await fireStore
+        .collection('users')
+        .doc(userId)
+        .collection('todos')
+        .doc('todo')
+        .set(todo.toMap());
   } on FirebaseAuthException catch (error) {
     showError(context, error);
   }
