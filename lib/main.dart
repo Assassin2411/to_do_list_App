@@ -11,11 +11,6 @@ import 'package:to_do_list/screens/profile_screen.dart';
 import 'package:to_do_list/screens/todo_list_screen.dart';
 import 'package:to_do_list/widgets/navigator_page.dart';
 
-final firebaseAuth = FirebaseAuth.instance;
-final fireStore = FirebaseFirestore.instance;
-final firebaseMessaging = FirebaseMessaging.instance;
-final fireStorage = FirebaseStorage.instance;
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
@@ -49,7 +44,6 @@ class _ThemeChangeNotifierState extends State<ThemeChangeNotifier> {
     setState(() {
       _themeMode = mode;
     });
-    // Update the system navigation bar color here based on the new theme mode
     updateSystemNavBarColor(_themeMode);
   }
 
@@ -106,3 +100,8 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+
+final firebaseAuth = FirebaseAuth.instance;
+final fireStore = FirebaseFirestore.instance;
+final firebaseMessaging = FirebaseMessaging.instance;
+final fireStorage = FirebaseStorage.instance;

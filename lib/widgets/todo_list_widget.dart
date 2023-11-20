@@ -20,42 +20,11 @@ class _ToDoListWidgetState extends State<ToDoListWidget> {
     super.initState();
   }
 
-  void _deleteToDO(todoTitle) async {
-    print('delete start');
-    print('Amit Ch: $documentId');
-    await fireStore
-        .collection('users')
-        .doc(userId)
-        .collection('todos')
-        .doc(documentId)
-        .delete();
-    print('delete end');
-  }
-
-  void _getDocumentId(todoTitle) async {
-    print('document');
-    final QuerySnapshot snapshot = await FirebaseFirestore.instance
-        .collection('users')
-        .doc(userId)
-        .collection('todos') // Replace with your collection name
-        .where('heading',
-            isEqualTo: todoTitle) // Replace with the title you're looking for
-        .get();
-
-    if (snapshot.docs.isNotEmpty) {
-      final DocumentSnapshot documentSnapshot = snapshot.docs[0];
-      documentId = documentSnapshot.id;
-      // Now you have the document ID, which you can use to update the document
-    }
-    print('document Id generated: $documentId');
-  }
-
   @override
   Widget build(BuildContext context) {
-    final screenHeight = MediaQuery.of(context).size.height;
     return SingleChildScrollView(
       child: Container(
-        height: screenHeight - 220,
+        height: 600,
         decoration: BoxDecoration(
           color: Colors.transparent,
           borderRadius: BorderRadius.circular(20),
@@ -101,12 +70,26 @@ class _ToDoListWidgetState extends State<ToDoListWidget> {
                             dateTodos[index].data() as Map<String, dynamic>;
                         final todoTitle = todoData['heading'] as String;
                         final todoBody = todoData['body'] as String;
-                        final todoTime = todoData['time'] as Timestamp;
+                        // final todoTime = todoData['time'] as Timestamp;
                         return GestureDetector(
                           onTap: () async {
-                            print('Assemble: $todoTime');
-                            _getDocumentId(todoTitle);
-                            print('document: $documentId');
+                            final QuerySnapshot snapshot = await FirebaseFirestore
+                                .instance
+                                .collection('users')
+                                .doc(userId)
+                                .collection(
+                                    'todos') // Replace with your collection name
+                                .where('heading',
+                                    isEqualTo:
+                                        todoTitle) // Replace with the title you're looking for
+                                .get();
+
+                            if (snapshot.docs.isNotEmpty) {
+                              final DocumentSnapshot documentSnapshot =
+                                  snapshot.docs[0];
+                              documentId = documentSnapshot.id;
+                              // Now you have the document ID, which you can use to update the document
+                            }
                             showModalBottomSheet(
                               context: context,
                               backgroundColor: Theme.of(context).primaryColor,
@@ -152,11 +135,42 @@ class _ToDoListWidgetState extends State<ToDoListWidget> {
                                     ),
                                   ),
                                   IconButton(
-                                    onPressed: () {
-                                      print('delete:');
-                                      _getDocumentId(todoTitle);
-                                      _deleteToDO(todoTitle);
-                                      print('delete complete');
+                                    onPressed: () async {
+                                      try {
+                                        final QuerySnapshot snapshot =
+                                            await FirebaseFirestore.instance
+                                                .collection('users')
+                                                .doc(userId)
+                                                .collection(
+                                                    'todos') // Replace with your collection name
+                                                .where('heading',
+                                                    isEqualTo:
+                                                        todoTitle) // Replace with the title you're looking for
+                                                .get();
+
+                                        if (snapshot.docs.isNotEmpty) {
+                                          final DocumentSnapshot
+                                              documentSnapshot =
+                                              snapshot.docs[0];
+                                          documentId = documentSnapshot.id;
+                                          // Now you have the document ID, which you can use to update the document
+                                        }
+                                        await fireStore
+                                            .collection('users')
+                                            .doc(userId)
+                                            .collection('todos')
+                                            .doc(documentId)
+                                            .delete();
+                                      } catch (error) {
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                          SnackBar(
+                                            content: Text(
+                                              error.toString(),
+                                            ),
+                                          ),
+                                        );
+                                      }
                                     },
                                     icon: const Icon(
                                       Icons.delete_outline,

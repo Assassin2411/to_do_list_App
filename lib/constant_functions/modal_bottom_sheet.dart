@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:to_do_list/constants/styling.dart';
 import 'package:to_do_list/main.dart';
 
@@ -24,6 +25,8 @@ class _ModalBottomSheetState extends State<ModalBottomSheet> {
   String userId = firebaseAuth.currentUser!.uid;
   TextEditingController? _headingTextController;
   TextEditingController? _bodyTextController;
+  String? _heading;
+  String? _body;
 
   @override
   void initState() {
@@ -33,33 +36,50 @@ class _ModalBottomSheetState extends State<ModalBottomSheet> {
     if (widget.buttonName == 'Update') {
       _headingTextController!.text = widget.heading;
       _bodyTextController!.text = widget.body;
+      _heading = _headingTextController!.text;
+      _body = _bodyTextController!.text;
     }
 
     super.initState();
   }
 
   void _saveToDo() async {
-    await fireStore.collection('users').doc(userId).collection('todos').add({
-      'heading': _headingTextController?.text,
-      'body': _bodyTextController?.text,
-      'time': DateTime.now(),
-    });
+    if (_headingTextController!.text.isNotEmpty &&
+        _bodyTextController!.text.isNotEmpty) {
+      await fireStore.collection('users').doc(userId).collection('todos').add({
+        'heading': _headingTextController?.text,
+        'body': _bodyTextController?.text,
+        'time': DateTime.now(),
+      });
+    } else {
+      Fluttertoast.showToast(msg: "Heading or Body can't remain empty");
+    }
+
     _headingTextController?.clear();
     _bodyTextController?.clear();
     Navigator.pop(context);
   }
 
   void _updateToDo() async {
-    print('update ToDO');
-    await fireStore
-        .collection('users')
-        .doc(userId)
-        .collection('todos')
-        .doc(widget.docId)
-        .update({
-      'heading': _headingTextController!.text,
-      'body': _bodyTextController!.text,
-    });
+    if (!((_heading == _headingTextController!.text &&
+            _body == _bodyTextController!.text) ||
+        _headingTextController!.text.isEmpty ||
+        _bodyTextController!.text.isEmpty)) {
+      await fireStore
+          .collection('users')
+          .doc(userId)
+          .collection('todos')
+          .doc(widget.docId)
+          .update({
+        'heading': _headingTextController!.text,
+        'body': _bodyTextController!.text,
+      });
+    } else {
+      if (_headingTextController!.text.isEmpty ||
+          _bodyTextController!.text.isEmpty) {
+        Fluttertoast.showToast(msg: "Heading or Body can't remain empty");
+      }
+    }
     _headingTextController?.clear();
     _bodyTextController?.clear();
     Navigator.pop(context);
