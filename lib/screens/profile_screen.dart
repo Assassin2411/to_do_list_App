@@ -10,6 +10,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:to_do_list/constants/styling.dart';
 import 'package:to_do_list/main.dart';
 import 'package:to_do_list/model/profile_model.dart';
+import 'package:to_do_list/screens/login_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -52,57 +53,58 @@ class _ProfileScreenState extends State<ProfileScreen> {
     _dobController.text = formatter.format(date);
   }
 
-  Future<void> _dobCheck() async {
-    if (!profile.dobUpdate) {
-      if (dateOfBirthRegex.hasMatch(_dobController.text)) {
-        DateFormat format = DateFormat("dd/MM/yyyy");
-        profile.dateOfBirth = format.parse(_dobController.text);
-        profile.dobUpdate = true;
-        await fireStore.collection('users').doc(userId).update({
-          'dobUpdate': true,
-          'dateOfBirth': profile.dateOfBirth,
-        });
-        setState(() {});
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Entered format was wrong!'),
-          ),
-        );
-      }
-    }
-  }
+  // Future<void> _dobCheck() async {
+  //   if (!profile.dobUpdate) {
+  //     if (dateOfBirthRegex.hasMatch(_dobController.text)) {
+  //       DateFormat format = DateFormat("dd/MM/yyyy");
+  //       profile.dateOfBirth = format.parse(_dobController.text);
+  //       profile.dobUpdate = true;
+  //       await fireStore.collection('users').doc(userId).update({
+  //         'dobUpdate': true,
+  //         'dateOfBirth': profile.dateOfBirth,
+  //       });
+  //       setState(() {});
+  //     } else {
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //         const SnackBar(
+  //           content: Text('Entered format was wrong!'),
+  //         ),
+  //       );
+  //     }
+  //   }
+  // }
+  //
+  // Future<void> _phoneCheck() async {
+  //   if (!profile.phoneUpdate) {
+  //     if (_phoneNumberController.text.length == 10) {
+  //       profile.phoneNumber = int.parse(_phoneNumberController.text);
+  //       profile.phoneUpdate = true;
+  //       await fireStore.collection('users').doc(userId).update({
+  //         'phoneUpdate': true,
+  //         'phoneNumber': profile.phoneNumber,
+  //       });
+  //       setState(() {});
+  //     } else {
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //         const SnackBar(
+  //           content: Text('Phone number is short!'),
+  //         ),
+  //       );
+  //     }
+  //   }
+  // }
 
-  Future<void> _phoneCheck() async {
-    if (!profile.phoneUpdate) {
-      if (_phoneNumberController.text.length == 10) {
-        profile.phoneNumber = int.parse(_phoneNumberController.text);
-        profile.phoneUpdate = true;
-        await fireStore.collection('users').doc(userId).update({
-          'phoneUpdate': true,
-          'phoneNumber': profile.phoneNumber,
-        });
-        setState(() {});
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Phone number is short!'),
-          ),
-        );
-      }
-    }
-  }
-
-  void _onSave() {
-    _dobCheck();
-    _phoneCheck();
-  }
-
-  void _auth() {
+  Future<void> _onSave() async {
     setState(() {
       isShowSpinner = true;
     });
-    firebaseAuth.signOut();
+    // _dobCheck();
+    // _phoneCheck();
+    if (_nameController.text.isNotEmpty) {
+      await fireStore.collection('users').doc(userId).update({
+        'name': _nameController.text,
+      });
+    }
     setState(() {
       isShowSpinner = false;
     });
@@ -145,15 +147,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     _newImage = File(croppedFile!.path);
 
-    if (_newImage != null) {
-      String filePath =
-          'users/$userId/${DateTime.now().millisecondsSinceEpoch}';
-      await fireStorage.ref(filePath).putFile(_newImage!);
-      profile.profileUrl = await fireStorage.ref(filePath).getDownloadURL();
-      await fireStore.collection(userId).doc(userId).update({
-        'profileUrl': profile.profileUrl,
-      });
-    }
+    String filePath = 'users/$userId/${DateTime.now().millisecondsSinceEpoch}';
+    await fireStorage.ref(filePath).putFile(_newImage!);
+    final imageUrl = await fireStorage.ref(filePath).getDownloadURL();
+    setState(() {
+      profile.profileUrl = imageUrl;
+    });
+    await fireStore.collection('users').doc(userId).update({
+      'profileUrl': profile.profileUrl,
+    });
   }
 
   @override
@@ -176,7 +178,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
         actions: [
           IconButton(
-            onPressed: _auth,
+            onPressed: () async {
+              await firebaseAuth.signOut();
+              Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (ctx) => LoginScreen()),
+                  (route) => false);
+            },
             icon: Icon(
               Icons.logout,
               color: Theme.of(context).colorScheme.onSurface,
@@ -226,38 +234,38 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
               const SizedBox(height: 80),
               TextFormField(
-                decoration:
-                    kTextFieldInputDecoration(context, 'Name', '').copyWith(
-                  suffixIcon: const Icon(
-                    Icons.check,
-                    color: Colors.green,
-                  ),
-                ),
+                decoration: kTextFieldInputDecoration(context, 'Name', ''),
+                //     .copyWith(
+                //   suffixIcon: const Icon(
+                //     Icons.check,
+                //     color: Colors.green,
+                //   ),
+                // ),
                 style: TextStyle(
                   color: Theme.of(context).colorScheme.onSurface,
                 ),
                 controller: _nameController,
-                readOnly: true,
+                readOnly: false,
               ),
-              const SizedBox(height: 30),
-              TextFormField(
-                decoration: kTextFieldInputDecoration(
-                        context, 'Date of Birth', 'DD/MM/YYYY')
-                    .copyWith(
-                  suffixIcon: Icon(
-                    Icons.check,
-                    color: !profile.dobUpdate
-                        ? Theme.of(context).colorScheme.surface
-                        : Colors.green,
-                  ),
-                ),
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.onSurface,
-                ),
-                keyboardType: TextInputType.number,
-                controller: _dobController,
-                readOnly: profile.dobUpdate,
-              ),
+              // const SizedBox(height: 30),
+              // TextFormField(
+              //   decoration: kTextFieldInputDecoration(
+              //           context, 'Date of Birth', 'DD/MM/YYYY')
+              //       .copyWith(
+              //     suffixIcon: Icon(
+              //       Icons.check,
+              //       color: !profile.dobUpdate
+              //           ? Theme.of(context).colorScheme.surface
+              //           : Colors.green,
+              //     ),
+              //   ),
+              //   style: TextStyle(
+              //     color: Theme.of(context).colorScheme.onSurface,
+              //   ),
+              //   keyboardType: TextInputType.number,
+              //   controller: _dobController,
+              //   readOnly: profile.dobUpdate,
+              // ),
               // const SizedBox(height: 30),
               // TextFormField(
               //   decoration:
