@@ -1,6 +1,16 @@
+import 'dart:developer';
+
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:to_do_list/constant_functions/login_function.dart';
 import 'package:to_do_list/constants/styling.dart';
+import 'package:to_do_list/main.dart';
+
+import '../constant_functions/get_location.dart';
+import '../model/profile_model.dart';
+import '../model/todo_model.dart';
 
 class FrontCard extends StatefulWidget {
   const FrontCard({super.key, required this.flipCard});
@@ -13,6 +23,7 @@ class FrontCard extends StatefulWidget {
 
 class _FrontCardState extends State<FrontCard> {
   final _loginFormKey = GlobalKey<FormState>();
+  String? userId = firebaseAuth.currentUser?.uid;
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
@@ -20,6 +31,8 @@ class _FrontCardState extends State<FrontCard> {
   bool isShowSpinner = false;
   String? _enteredEmail;
   String? _enteredPassword;
+  double _latitude = 26.8255886;
+  double _longitude = 75.7923313;
 
   _auth() async {
     setState(() {
@@ -33,6 +46,53 @@ class _FrontCardState extends State<FrontCard> {
     setState(() {
       isShowSpinner = false;
     });
+  }
+
+  void _getLocation() async {
+    try {
+      Position position = await determinePosition();
+      log('Latitude: ${position.latitude}, Longitude: ${position.longitude}');
+      _latitude = position.latitude;
+      _longitude = position.longitude;
+    } catch (e) {
+      log(e.toString());
+    }
+  }
+
+  _googleSignIn() async {
+    GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+    GoogleSignInAuthentication? googleAuth = await googleUser?.authentication;
+    AuthCredential credential = GoogleAuthProvider.credential(
+      accessToken: googleAuth?.accessToken,
+      idToken: googleAuth?.idToken,
+    );
+    UserCredential userCredential =
+        await firebaseAuth.signInWithCredential(credential);
+    print(userCredential.user?.displayName);
+
+    profile = ProfileModel(
+      profileUrl: '',
+      name: userCredential.user!.displayName ?? 'Anonymous',
+      email: userCredential.user?.email ?? 'mail@website.com',
+      fcmToken: '',
+      dobUpdate: false,
+      latitude: _latitude,
+      longitude: _longitude,
+      dateOfBirth: DateTime.now(),
+      accountCreatedDate: DateTime.now(),
+      lastOnline: DateTime.now(),
+      phoneUpdate: false,
+      phoneNumber: 1234567890,
+    );
+
+    await fireStore.collection('users').doc(userId).set(profile.toMap());
+
+    await fireStore
+        .collection('users')
+        .doc(userId)
+        .collection('todos')
+        .doc('todo')
+        .set(todo.toMap());
   }
 
   @override
@@ -63,7 +123,7 @@ class _FrontCardState extends State<FrontCard> {
             ),
             const SizedBox(height: 20),
             ElevatedButton(
-              onPressed: () {},
+              onPressed: _googleSignIn,
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 10),
                 backgroundColor: const Color(0xff16202a),
