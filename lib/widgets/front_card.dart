@@ -60,6 +60,7 @@ class _FrontCardState extends State<FrontCard> {
   }
 
   _googleSignIn() async {
+    _getLocation();
     GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
     GoogleSignInAuthentication? googleAuth = await googleUser?.authentication;
     AuthCredential credential = GoogleAuthProvider.credential(
