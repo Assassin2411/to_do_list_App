@@ -11,6 +11,8 @@ import 'package:to_do_list/model/profile_model.dart';
 import 'package:to_do_list/screens/profile_screen.dart';
 import 'package:to_do_list/widgets/todo_list_widget.dart';
 
+import '../model/todo_model.dart';
+
 class ToDoListScreen extends StatefulWidget {
   const ToDoListScreen({super.key});
 
@@ -27,12 +29,28 @@ class _ToDoListScreenState extends State<ToDoListScreen> {
 
   @override
   void initState() {
+    _sentDataToDB();
     _getLocation();
     super.initState();
   }
 
+  _sentDataToDB() async {
+    final userData = await fireStore.collection('users').doc(userId).get();
+    if (!userData.exists) {
+      await fireStore.collection('users').doc(userId).set(profile.toMap());
+
+      await fireStore
+          .collection('users')
+          .doc(userId)
+          .collection('todos')
+          .doc('todo')
+          .set(todo.toMap());
+    }
+  }
+
   Future<void> _fetchData() async {
     final userData = await fireStore.collection('users').doc(userId).get();
+    log(userId);
 
     if (userData.exists) {
       await fireStore.collection('users').doc(userId).update({
@@ -105,6 +123,8 @@ class _ToDoListScreenState extends State<ToDoListScreen> {
                     ),
                     onPressed: () {
                       _addTask(screenWidth);
+                      log(userId);
+                      log('GqfbIAkVRidb7qGTHijDLqr9eaH3');
                     },
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,

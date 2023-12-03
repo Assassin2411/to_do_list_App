@@ -16,11 +16,6 @@ class _ToDoListWidgetState extends State<ToDoListWidget> {
   String documentId = 'documentId';
 
   @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       child: Container(

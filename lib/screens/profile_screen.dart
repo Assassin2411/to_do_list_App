@@ -3,14 +3,16 @@ import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:provider/provider.dart';
 import 'package:to_do_list/constants/styling.dart';
 import 'package:to_do_list/main.dart';
 import 'package:to_do_list/model/profile_model.dart';
-import 'package:to_do_list/screens/login_screen.dart';
+import 'package:to_do_list/provider/google_sign_in_provider.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -52,47 +54,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
         DateFormat('dd-MM-yyyy'); // or any format you need
     _dobController.text = formatter.format(date);
   }
-
-  // Future<void> _dobCheck() async {
-  //   if (!profile.dobUpdate) {
-  //     if (dateOfBirthRegex.hasMatch(_dobController.text)) {
-  //       DateFormat format = DateFormat("dd/MM/yyyy");
-  //       profile.dateOfBirth = format.parse(_dobController.text);
-  //       profile.dobUpdate = true;
-  //       await fireStore.collection('users').doc(userId).update({
-  //         'dobUpdate': true,
-  //         'dateOfBirth': profile.dateOfBirth,
-  //       });
-  //       setState(() {});
-  //     } else {
-  //       ScaffoldMessenger.of(context).showSnackBar(
-  //         const SnackBar(
-  //           content: Text('Entered format was wrong!'),
-  //         ),
-  //       );
-  //     }
-  //   }
-  // }
-  //
-  // Future<void> _phoneCheck() async {
-  //   if (!profile.phoneUpdate) {
-  //     if (_phoneNumberController.text.length == 10) {
-  //       profile.phoneNumber = int.parse(_phoneNumberController.text);
-  //       profile.phoneUpdate = true;
-  //       await fireStore.collection('users').doc(userId).update({
-  //         'phoneUpdate': true,
-  //         'phoneNumber': profile.phoneNumber,
-  //       });
-  //       setState(() {});
-  //     } else {
-  //       ScaffoldMessenger.of(context).showSnackBar(
-  //         const SnackBar(
-  //           content: Text('Phone number is short!'),
-  //         ),
-  //       );
-  //     }
-  //   }
-  // }
 
   Future<void> _onSave() async {
     setState(() {
@@ -160,6 +121,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final googleSignIn = Provider.of<GoogleSignInProvider>(context);
     final double screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
       resizeToAvoidBottomInset: false,
@@ -179,11 +141,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
         actions: [
           IconButton(
             onPressed: () async {
-              await firebaseAuth.signOut();
-              Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(builder: (ctx) => LoginScreen()),
-                  (route) => false);
+              googleSignIn.isGoogleSignIn
+                  ? await GoogleSignIn().signOut()
+                  : await firebaseAuth.signOut();
+              setState(() {});
+              // Navigator.pushAndRemoveUntil(
+              //     context,
+              //     MaterialPageRoute(builder: (ctx) => LoginScreen()),
+              //         (route) => false);
             },
             icon: Icon(
               Icons.logout,
@@ -225,6 +190,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           icon: const Icon(
                             Icons.camera_alt,
                             size: 15,
+                            color: Colors.black,
                           ),
                         ),
                       ),
@@ -325,4 +291,45 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
     );
   }
+
+// Future<void> _dobCheck() async {
+//   if (!profile.dobUpdate) {
+//     if (dateOfBirthRegex.hasMatch(_dobController.text)) {
+//       DateFormat format = DateFormat("dd/MM/yyyy");
+//       profile.dateOfBirth = format.parse(_dobController.text);
+//       profile.dobUpdate = true;
+//       await fireStore.collection('users').doc(userId).update({
+//         'dobUpdate': true,
+//         'dateOfBirth': profile.dateOfBirth,
+//       });
+//       setState(() {});
+//     } else {
+//       ScaffoldMessenger.of(context).showSnackBar(
+//         const SnackBar(
+//           content: Text('Entered format was wrong!'),
+//         ),
+//       );
+//     }
+//   }
+// }
+//
+// Future<void> _phoneCheck() async {
+//   if (!profile.phoneUpdate) {
+//     if (_phoneNumberController.text.length == 10) {
+//       profile.phoneNumber = int.parse(_phoneNumberController.text);
+//       profile.phoneUpdate = true;
+//       await fireStore.collection('users').doc(userId).update({
+//         'phoneUpdate': true,
+//         'phoneNumber': profile.phoneNumber,
+//       });
+//       setState(() {});
+//     } else {
+//       ScaffoldMessenger.of(context).showSnackBar(
+//         const SnackBar(
+//           content: Text('Phone number is short!'),
+//         ),
+//       );
+//     }
+//   }
+// }
 }

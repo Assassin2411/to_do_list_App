@@ -174,6 +174,7 @@ class _BackCardState extends State<BackCard> {
                             icon: const Icon(
                               Icons.camera_alt,
                               size: 15,
+                              color: Colors.black,
                             ),
                           ),
                         ),
@@ -183,8 +184,7 @@ class _BackCardState extends State<BackCard> {
                 ),
               ],
             ),
-            const SizedBox(height: 20),
-            const SizedBox(height: 40),
+            const SizedBox(height: 60),
             Form(
               key: _signupFormKey,
               child: Column(

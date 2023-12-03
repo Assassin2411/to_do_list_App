@@ -4,13 +4,13 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:provider/provider.dart';
+import 'package:to_do_list/constant_functions/get_location.dart';
 import 'package:to_do_list/constant_functions/login_function.dart';
 import 'package:to_do_list/constants/styling.dart';
 import 'package:to_do_list/main.dart';
-
-import '../constant_functions/get_location.dart';
-import '../model/profile_model.dart';
-import '../model/todo_model.dart';
+import 'package:to_do_list/model/profile_model.dart';
+import 'package:to_do_list/provider/google_sign_in_provider.dart';
 
 class FrontCard extends StatefulWidget {
   const FrontCard({super.key, required this.flipCard});
@@ -34,7 +34,15 @@ class _FrontCardState extends State<FrontCard> {
   double _latitude = 26.8255886;
   double _longitude = 75.7923313;
 
-  _auth() async {
+  @override
+  void initState() {
+    _getLocation();
+    super.initState();
+  }
+
+  _auth(context) async {
+    final googleSignIn =
+        Provider.of<GoogleSignInProvider>(context, listen: false);
     setState(() {
       isShowSpinner = true;
     });
@@ -42,7 +50,7 @@ class _FrontCardState extends State<FrontCard> {
     _enteredPassword = _passwordController.text;
 
     login(_enteredEmail, _enteredPassword, context);
-
+    googleSignIn.signInWithGoogle(false);
     setState(() {
       isShowSpinner = false;
     });
@@ -59,46 +67,44 @@ class _FrontCardState extends State<FrontCard> {
     }
   }
 
-  _googleSignIn() async {
-    _getLocation();
-    GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
-    GoogleSignInAuthentication? googleAuth = await googleUser?.authentication;
-    AuthCredential credential = GoogleAuthProvider.credential(
-      accessToken: googleAuth?.accessToken,
-      idToken: googleAuth?.idToken,
-    );
-    UserCredential userCredential =
-        await firebaseAuth.signInWithCredential(credential);
-    print(userCredential.user?.displayName);
-
-    profile = ProfileModel(
-      profileUrl: '',
-      name: userCredential.user!.displayName ?? 'Anonymous',
-      email: userCredential.user?.email ?? 'mail@website.com',
-      fcmToken: '',
-      dobUpdate: false,
-      latitude: _latitude,
-      longitude: _longitude,
-      dateOfBirth: DateTime.now(),
-      accountCreatedDate: DateTime.now(),
-      lastOnline: DateTime.now(),
-      phoneUpdate: false,
-      phoneNumber: 1234567890,
-    );
-
-    await fireStore.collection('users').doc(userId).set(profile.toMap());
-
-    await fireStore
-        .collection('users')
-        .doc(userId)
-        .collection('todos')
-        .doc('todo')
-        .set(todo.toMap());
-  }
-
   @override
   Widget build(BuildContext context) {
+    final googleSignInProvider =
+        Provider.of<GoogleSignInProvider>(context, listen: false);
     final double screenWidth = MediaQuery.of(context).size.width;
+    googleSignIn() async {
+      try {
+        GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+        GoogleSignInAuthentication? googleAuth =
+            await googleUser?.authentication;
+        AuthCredential credential = GoogleAuthProvider.credential(
+          accessToken: googleAuth?.accessToken,
+          idToken: googleAuth?.idToken,
+        );
+        UserCredential userCredential =
+            await firebaseAuth.signInWithCredential(credential);
+
+        profile = ProfileModel(
+          profileUrl: userCredential.user!.photoURL ?? '',
+          name: userCredential.user!.displayName ?? 'Anonymous',
+          email: userCredential.user?.email ?? 'mail@website.com',
+          fcmToken: '',
+          dobUpdate: false,
+          latitude: _latitude,
+          longitude: _longitude,
+          dateOfBirth: DateTime.now(),
+          accountCreatedDate: DateTime.now(),
+          lastOnline: DateTime.now(),
+          phoneUpdate: false,
+          phoneNumber: int.parse(userCredential.user!.phoneNumber.toString()),
+        );
+
+        googleSignInProvider.signInWithGoogle(true);
+      } catch (error) {
+        log(error.toString());
+      }
+    }
+
     return Card(
       elevation: 10,
       shape: RoundedRectangleBorder(
@@ -124,7 +130,7 @@ class _FrontCardState extends State<FrontCard> {
             ),
             const SizedBox(height: 20),
             ElevatedButton(
-              onPressed: _googleSignIn,
+              onPressed: googleSignIn,
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 10),
                 backgroundColor: const Color(0xff16202a),
@@ -169,15 +175,6 @@ class _FrontCardState extends State<FrontCard> {
                     keyboardType: TextInputType.emailAddress,
                     textCapitalization: TextCapitalization.none,
                     style: kNormalText(context).copyWith(color: Colors.white),
-                    // onTapOutside: (value) {
-                    //   _enteredEmail = _emailController.text;
-                    // },
-                    // onFieldSubmitted: (value) {
-                    //   _enteredEmail = _emailController.text;
-                    // },
-                    // onSaved: (value) {
-                    //   _enteredEmail = _emailController.text;
-                    // },
                     readOnly: isShowSpinner,
                   ),
                   const SizedBox(height: 20),
@@ -203,20 +200,13 @@ class _FrontCardState extends State<FrontCard> {
                     textCapitalization: TextCapitalization.none,
                     style: kNormalText(context).copyWith(color: Colors.white),
                     obscureText: isNotVisiblePassword,
-                    // onTapOutside: (value) {
-                    //   _enteredPassword = _passwordController.text;
-                    // },
-                    // onFieldSubmitted: (value) {
-                    //   _enteredPassword = _passwordController.text;
-                    // },
-                    // onSaved: (value) {
-                    //   _enteredPassword = _passwordController.text;
-                    // },
                     readOnly: isShowSpinner,
                   ),
                   const SizedBox(height: 40),
                   ElevatedButton(
-                    onPressed: _auth,
+                    onPressed: () {
+                      _auth(context);
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xff334e6a),
                       fixedSize: Size(screenWidth - 80, 45),

@@ -32,6 +32,5 @@ class NavigatorPage extends StatelessWidget {
         return const CircularProgressIndicator();
       },
     );
-    ;
   }
 }
