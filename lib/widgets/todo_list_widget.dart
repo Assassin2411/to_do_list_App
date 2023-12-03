@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:to_do_list/constant_functions/modal_bottom_sheet.dart';
 import 'package:to_do_list/constants/styling.dart';
 import 'package:to_do_list/main.dart';
@@ -14,6 +15,7 @@ class ToDoListWidget extends StatefulWidget {
 class _ToDoListWidgetState extends State<ToDoListWidget> {
   String userId = firebaseAuth.currentUser!.uid;
   String documentId = 'documentId';
+  bool checkedValue = false;
 
   @override
   Widget build(BuildContext context) {
@@ -65,6 +67,7 @@ class _ToDoListWidgetState extends State<ToDoListWidget> {
                             dateTodos[index].data() as Map<String, dynamic>;
                         final todoTitle = todoData['heading'] as String;
                         final todoBody = todoData['body'] as String;
+                        bool todoCompleted = todoData['isCompleted'] as bool;
                         // final todoTime = todoData['time'] as Timestamp;
                         return GestureDetector(
                           onTap: () async {
@@ -85,20 +88,24 @@ class _ToDoListWidgetState extends State<ToDoListWidget> {
                               documentId = documentSnapshot.id;
                               // Now you have the document ID, which you can use to update the document
                             }
-                            showModalBottomSheet(
-                              context: context,
-                              backgroundColor: Theme.of(context).primaryColor,
-                              isScrollControlled: true,
-                              useSafeArea: false,
-                              builder: (context) {
-                                return ModalBottomSheet(
-                                  buttonName: 'Update',
-                                  docId: documentId,
-                                  heading: todoTitle,
-                                  body: todoBody,
-                                );
-                              },
-                            );
+                            todoCompleted
+                                ? Fluttertoast.showToast(
+                                    msg: 'ToDo is completed!')
+                                : showModalBottomSheet(
+                                    context: context,
+                                    backgroundColor:
+                                        Theme.of(context).primaryColor,
+                                    isScrollControlled: true,
+                                    useSafeArea: false,
+                                    builder: (context) {
+                                      return ModalBottomSheet(
+                                        buttonName: 'Update',
+                                        docId: documentId,
+                                        heading: todoTitle,
+                                        body: todoBody,
+                                      );
+                                    },
+                                  );
                           },
                           child: Padding(
                             padding: const EdgeInsets.symmetric(
@@ -108,18 +115,59 @@ class _ToDoListWidgetState extends State<ToDoListWidget> {
                               padding: const EdgeInsets.only(left: 10),
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(5),
-                                gradient: const LinearGradient(
-                                  colors: [
-                                    Color(0xffcfacb8),
-                                    Color(0xffffb6b3),
-                                    Color(0xffffbfa7),
-                                  ],
+                                gradient: LinearGradient(
+                                  colors: todoCompleted
+                                      ? [
+                                          const Color(0xffe3dee4),
+                                          const Color(0xffe3dee4),
+                                          const Color(0xffe3dee4),
+                                        ]
+                                      : [
+                                          const Color(0xffcfacb8),
+                                          const Color(0xffffb6b3),
+                                          const Color(0xffffbfa7),
+                                        ],
                                 ),
                               ),
                               child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
                                 children: [
+                                  Checkbox(
+                                      activeColor: Colors.black,
+                                      checkColor: Colors.white,
+                                      value: todoCompleted,
+                                      onChanged: (newValue) async {
+                                        final QuerySnapshot snapshot =
+                                            await FirebaseFirestore.instance
+                                                .collection('users')
+                                                .doc(userId)
+                                                .collection(
+                                                    'todos') // Replace with your collection name
+                                                .where('heading',
+                                                    isEqualTo:
+                                                        todoTitle) // Replace with the title you're looking for
+                                                .get();
+
+                                        if (snapshot.docs.isNotEmpty) {
+                                          final DocumentSnapshot
+                                              documentSnapshot =
+                                              snapshot.docs[0];
+                                          documentId = documentSnapshot.id;
+                                          // Now you have the document ID, which you can use to update the document
+                                        }
+                                        await fireStore
+                                            .collection('users')
+                                            .doc(userId)
+                                            .collection('todos')
+                                            .doc(documentId)
+                                            .update({
+                                          'isCompleted': newValue,
+                                        });
+                                        todoCompleted =
+                                            todoData['isCompleted'] as bool;
+                                        setState(() {
+                                          todoCompleted = newValue!;
+                                        });
+                                      }),
                                   Text(
                                     todoTitle[0].toUpperCase() +
                                         todoTitle.substring(1),
@@ -129,6 +177,7 @@ class _ToDoListWidgetState extends State<ToDoListWidget> {
                                       fontSize: 16,
                                     ),
                                   ),
+                                  const Spacer(),
                                   IconButton(
                                     onPressed: () async {
                                       try {

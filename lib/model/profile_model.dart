@@ -21,7 +21,7 @@ class ProfileModel {
   String profileUrl;
   bool dobUpdate;
   bool phoneUpdate;
-  int phoneNumber;
+  String phoneNumber;
   final String fcmToken;
   final double latitude;
   final double longitude;
@@ -71,7 +71,7 @@ ProfileModel profile = ProfileModel(
     longitude: 70,
     dobUpdate: false,
     phoneUpdate: false,
-    phoneNumber: 1234567890,
+    phoneNumber: "1234567890",
     dateOfBirth: DateTime.now(),
     accountCreatedDate: DateTime.now(),
     lastOnline: DateTime.now(),

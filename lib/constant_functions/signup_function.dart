@@ -98,7 +98,7 @@ signup(enteredName, enteredEmail, enteredPassword, newImage, fcmToken, latitude,
       accountCreatedDate: DateTime.now(),
       lastOnline: DateTime.now(),
       phoneUpdate: false,
-      phoneNumber: 1234567890,
+      phoneNumber: "1234567890",
     );
 
     await fireStore.collection('users').doc(userId).set(profile.toMap());

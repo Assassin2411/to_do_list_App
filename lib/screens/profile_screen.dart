@@ -8,11 +8,11 @@ import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:provider/provider.dart';
 import 'package:to_do_list/constants/styling.dart';
 import 'package:to_do_list/main.dart';
 import 'package:to_do_list/model/profile_model.dart';
-import 'package:to_do_list/provider/google_sign_in_provider.dart';
+
+import 'login_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -35,6 +35,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   String userId = firebaseAuth.currentUser!.uid;
   bool isShowSpinner = false;
   File? _newImage;
+  bool selectingPhoto = false;
 
   @override
   void initState() {
@@ -72,8 +73,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   _takeImage() async {
+    setState(() {
+      selectingPhoto = true;
+    });
     final image = await ImagePicker().pickImage(source: ImageSource.gallery);
     if (image == null) {
+      setState(() {
+        selectingPhoto = false;
+      });
       return;
     }
 
@@ -113,6 +120,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final imageUrl = await fireStorage.ref(filePath).getDownloadURL();
     setState(() {
       profile.profileUrl = imageUrl;
+      selectingPhoto = false;
     });
     await fireStore.collection('users').doc(userId).update({
       'profileUrl': profile.profileUrl,
@@ -121,7 +129,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final googleSignIn = Provider.of<GoogleSignInProvider>(context);
     final double screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
       resizeToAvoidBottomInset: false,
@@ -141,14 +148,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
         actions: [
           IconButton(
             onPressed: () async {
-              googleSignIn.isGoogleSignIn
-                  ? await GoogleSignIn().signOut()
-                  : await firebaseAuth.signOut();
-              setState(() {});
-              // Navigator.pushAndRemoveUntil(
-              //     context,
-              //     MaterialPageRoute(builder: (ctx) => LoginScreen()),
-              //         (route) => false);
+              await GoogleSignIn().signOut();
+              await firebaseAuth.signOut();
+              Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (ctx) => LoginScreen()),
+                      (route) => false);
             },
             icon: Icon(
               Icons.logout,
@@ -196,6 +201,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                     ),
                   ),
+                  if (selectingPhoto)
+                    const Positioned(
+                      right: 30,
+                      left: 30,
+                      bottom: 30,
+                      top: 30,
+                      child: CircularProgressIndicator(),
+                    ),
                 ],
               ),
               const SizedBox(height: 80),

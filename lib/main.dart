@@ -1,13 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:provider/provider.dart';
+// import 'package:provider/provider.dart';
 import 'package:to_do_list/constants/styling.dart';
-import 'package:to_do_list/provider/google_sign_in_provider.dart';
 import 'package:to_do_list/screens/login_screen.dart';
 import 'package:to_do_list/screens/profile_screen.dart';
 import 'package:to_do_list/screens/todo_list_screen.dart';
@@ -21,9 +21,10 @@ void main() async {
     statusBarIconBrightness: Brightness.dark,
     statusBarBrightness: Brightness.light,
   ));
-  runApp(MultiProvider(providers: [
-    ChangeNotifierProvider(create: (create) => GoogleSignInProvider())
-  ], child: const MyApp()));
+  await FirebaseAppCheck.instance.activate(
+    androidProvider: AndroidProvider.debug,
+  );
+  runApp(const MyApp());
 }
 
 class ThemeChangeNotifier extends StatefulWidget {
