@@ -16,6 +16,7 @@ class ToDoModel {
       'heading': heading,
       'body': body,
       'time': time,
+      'isCompleted': isCompleted,
     };
   }
 
@@ -33,5 +34,5 @@ ToDoModel todo = ToDoModel(
   heading: 'Welcome',
   body: "Hello, I'm Amit Choudhary I made this app hope you like this app.",
   time: DateTime.now(),
-  isCompleted: true,
+  isCompleted: false,
 );
