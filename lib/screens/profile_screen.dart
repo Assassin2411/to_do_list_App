@@ -6,7 +6,7 @@ import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:intl/intl.dart';
+// import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:to_do_list/constants/styling.dart';
 import 'package:to_do_list/main.dart';
@@ -25,8 +25,9 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _dobController = TextEditingController();
-  final TextEditingController _phoneNumberController = TextEditingController();
+
+  // final TextEditingController _dobController = TextEditingController();
+  // final TextEditingController _phoneNumberController = TextEditingController();
 
   final RegExp dateOfBirthRegex =
       RegExp(r'^(0[1-9]|[12][0-9]|3[01])/(0[1-9]|1[012])/(19|20)\d\d$');
@@ -40,20 +41,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void initState() {
     _nameController.text = profile.name;
     _emailController.text = profile.email;
-    if (profile.dobUpdate) {
-      _formatDateOfBirth(profile.dateOfBirth);
-    }
-    if (profile.phoneUpdate) {
-      _phoneNumberController.text = profile.phoneNumber.toString();
-    }
+    // if (profile.dobUpdate) {
+    //   _formatDateOfBirth(profile.dateOfBirth);
+    // }
+    // if (profile.phoneUpdate) {
+    //   _phoneNumberController.text = profile.phoneNumber.toString();
+    // }
     super.initState();
   }
 
-  void _formatDateOfBirth(DateTime date) {
-    final DateFormat formatter =
-        DateFormat('dd-MM-yyyy'); // or any format you need
-    _dobController.text = formatter.format(date);
-  }
+  // void _formatDateOfBirth(DateTime date) {
+  //   final DateFormat formatter =
+  //       DateFormat('dd-MM-yyyy'); // or any format you need
+  //   _dobController.text = formatter.format(date);
+  // }
 
   Future<void> _onSave() async {
     setState(() {
