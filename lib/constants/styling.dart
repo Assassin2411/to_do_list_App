@@ -84,8 +84,7 @@ InputDecoration kTextFieldInputDecoration(context, labelText, hintText) =>
       constraints: const BoxConstraints(maxHeight: 45, minHeight: 45),
       contentPadding: const EdgeInsets.symmetric(horizontal: 20),
       labelText: labelText,
-      labelStyle: kNormalText(context)
-          .copyWith(color: Theme.of(context).colorScheme.onSurface),
+      labelStyle: kNormalText(context).copyWith(color: Colors.white),
       hintText: hintText,
       hintStyle: kNormalText(context).copyWith(color: kHeadingColor(context)),
       border: outlineInputBorder(Colors.white),

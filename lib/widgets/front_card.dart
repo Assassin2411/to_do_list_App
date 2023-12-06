@@ -63,20 +63,20 @@ class _FrontCardState extends State<FrontCard> {
       log(e.toString());
     }
   }
+
   _googleSignIn() async {
     setState(() {
       isLoginProgress = true;
     });
     try {
       GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
-      GoogleSignInAuthentication? googleAuth =
-      await googleUser?.authentication;
+      GoogleSignInAuthentication? googleAuth = await googleUser?.authentication;
       AuthCredential credential = GoogleAuthProvider.credential(
         accessToken: googleAuth?.accessToken,
         idToken: googleAuth?.idToken,
       );
       UserCredential userCredential =
-      await firebaseAuth.signInWithCredential(credential);
+          await firebaseAuth.signInWithCredential(credential);
 
       profile = ProfileModel(
         profileUrl: userCredential.user!.photoURL ?? '',
@@ -194,9 +194,12 @@ class _FrontCardState extends State<FrontCard> {
                               isNotVisiblePassword = !isNotVisiblePassword;
                             });
                           },
-                          icon: Icon(isNotVisiblePassword
-                              ? Icons.visibility_off
-                              : Icons.visibility),
+                          icon: Icon(
+                            isNotVisiblePassword
+                                ? Icons.visibility_off
+                                : Icons.visibility,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
                       controller: _passwordController,

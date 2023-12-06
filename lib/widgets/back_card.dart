@@ -227,9 +227,12 @@ class _BackCardState extends State<BackCard> {
                             isVisiblePassword = !isVisiblePassword;
                           });
                         },
-                        icon: Icon(isVisiblePassword
-                            ? Icons.visibility_off
-                            : Icons.visibility),
+                        icon: Icon(
+                          isVisiblePassword
+                              ? Icons.visibility_off
+                              : Icons.visibility,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
                     controller: _passwordController,

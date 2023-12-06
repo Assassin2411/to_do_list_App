@@ -50,6 +50,7 @@ class _ModalBottomSheetState extends State<ModalBottomSheet> {
         'heading': _headingTextController?.text,
         'body': _bodyTextController?.text,
         'time': DateTime.now(),
+        'isCompleted': false,
       });
     } else {
       Fluttertoast.showToast(msg: "Heading or Body can't remain empty");
@@ -100,6 +101,7 @@ class _ModalBottomSheetState extends State<ModalBottomSheet> {
             maxLines: 1,
             decoration: kTextFieldInputDecoration(context, 'Heading', 'Heading')
                 .copyWith(
+              labelStyle: TextStyle(color: Theme.of(context).canvasColor),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(30),
                 borderSide: BorderSide(

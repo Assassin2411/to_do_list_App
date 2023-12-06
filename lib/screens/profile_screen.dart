@@ -11,8 +11,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:to_do_list/constants/styling.dart';
 import 'package:to_do_list/main.dart';
 import 'package:to_do_list/model/profile_model.dart';
-
-import 'login_screen.dart';
+import 'package:to_do_list/screens/login_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -153,7 +152,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               Navigator.pushAndRemoveUntil(
                   context,
                   MaterialPageRoute(builder: (ctx) => LoginScreen()),
-                      (route) => false);
+                  (route) => false);
             },
             icon: Icon(
               Icons.logout,
@@ -213,7 +212,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
               const SizedBox(height: 80),
               TextFormField(
-                decoration: kTextFieldInputDecoration(context, 'Name', ''),
+                decoration:
+                    kTextFieldInputDecoration(context, 'Name', '').copyWith(
+                  labelStyle: TextStyle(color: Theme.of(context).canvasColor),
+                ),
                 //     .copyWith(
                 //   suffixIcon: const Icon(
                 //     Icons.check,
@@ -221,7 +223,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 //   ),
                 // ),
                 style: TextStyle(
-                  color: Theme.of(context).colorScheme.onSurface,
+                  color: Theme.of(context).canvasColor,
                 ),
                 controller: _nameController,
                 readOnly: false,
@@ -267,13 +269,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
               TextFormField(
                 decoration:
                     kTextFieldInputDecoration(context, 'Email', '').copyWith(
+                  labelStyle: TextStyle(color: Theme.of(context).canvasColor),
                   suffixIcon: const Icon(
                     Icons.check,
                     color: Colors.green,
                   ),
                 ),
                 style: TextStyle(
-                  color: Theme.of(context).colorScheme.onSurface,
+                  color: Theme.of(context).canvasColor,
                 ),
                 controller: _emailController,
                 readOnly: true,
