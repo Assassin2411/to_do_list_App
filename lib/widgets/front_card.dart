@@ -212,6 +212,9 @@ class _FrontCardState extends State<FrontCard> {
                     const SizedBox(height: 40),
                     ElevatedButton(
                       onPressed: () {
+                        setState(() {
+                          isLoginProgress = true;
+                        });
                         _auth(context);
                       },
                       style: ElevatedButton.styleFrom(

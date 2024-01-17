@@ -11,7 +11,6 @@ import 'package:path_provider/path_provider.dart';
 import 'package:to_do_list/constants/styling.dart';
 import 'package:to_do_list/main.dart';
 import 'package:to_do_list/model/profile_model.dart';
-import 'package:to_do_list/screens/login_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -150,10 +149,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             onPressed: () async {
               await GoogleSignIn().signOut();
               await firebaseAuth.signOut();
-              Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(builder: (ctx) => LoginScreen()),
-                  (route) => false);
+              Navigator.pop(context);
             },
             icon: Icon(
               Icons.logout,

@@ -114,7 +114,7 @@ class _ToDoListScreenState extends State<ToDoListScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'This Week',
+                    'Make your Todo...',
                     style: kSubHeading(context),
                   ),
                   TextButton(
@@ -127,7 +127,7 @@ class _ToDoListScreenState extends State<ToDoListScreen> {
                       log('GqfbIAkVRidb7qGTHijDLqr9eaH3');
                     },
                     child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Text(
                           'Add Task',
