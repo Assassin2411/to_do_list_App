@@ -13,23 +13,18 @@ class NavigatorPage extends StatelessWidget {
     return StreamBuilder(
       stream: FirebaseAuth.instance.authStateChanges(),
       builder: (context, snapshot) {
-        if (snapshot.connectionState != ConnectionState.active) {
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
-        }
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(
             child: CircularProgressIndicator(),
           );
         }
-        if (snapshot.hasData) {
+        if (snapshot.connectionState == ConnectionState.active) {
           return const ToDoListScreen();
         }
-        if (!snapshot.hasData) {
+        if (snapshot.connectionState != ConnectionState.active) {
           return const LoginScreen();
         }
-        return const CircularProgressIndicator();
+        return const Center(child: CircularProgressIndicator());
       },
     );
   }
